@@ -20,11 +20,11 @@ export default defineConfig({
       ], //这些属性不需要转换
     }),
   ],
-  // proxy: {
-  //   '/api': {
-  //     target: 'http://192.168.0.120:8080/',
-  //     changeOrigin: true,
-  //     pathRewrite: { '^/api': '' },
-  //   },
-  // },
+  proxy: {
+    '/api': {
+      target: 'http://192.168.0.120:8080/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+  },
 });

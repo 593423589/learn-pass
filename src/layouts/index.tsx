@@ -12,8 +12,14 @@ export default ({ children, location, history }: IRouteComponentProps) => {
 
   return (
     <>
-      {getUerInfo().isLogin ? children : <Login />}
-      <Footer />
+      {getUerInfo().isLogin ? (
+        <>
+          {children}
+          <Footer />
+        </>
+      ) : (
+        <Login />
+      )}
     </>
   );
 };
