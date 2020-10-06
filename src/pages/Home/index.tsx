@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import PersonShow from '../Home/components/PersonShow';
+import Header from '@/components/Header';
 import styles from './index.less';
 import {
   SmileTwoTone,
@@ -17,6 +18,7 @@ export default function Home() {
   const [affairShow, setAffairShow] = useState(false);
   //修改密码
   const [changePwdShow, setChangePwdShow] = useState(false);
+  const [fresh, setFresh] = useState(1);
   const close = useCallback((name: string) => {
     if (name === 'affair') {
       setAffairShow(false);
@@ -30,7 +32,7 @@ export default function Home() {
   }, []);
   return (
     <div className={styles.wrapper}>
-      <div className={styles.me}>我</div>
+      <Header title="我" leftPart={null} />
       <PersonShow
         name="李锋"
         sex={0}

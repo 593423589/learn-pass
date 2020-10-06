@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styles from './index.less';
-import { Input, Button } from 'antd';
+import { Input, Button, message } from 'antd';
 interface event {
   target: {
     value: string;
@@ -20,6 +20,12 @@ export default function ChangePwd() {
     else if (name === 'curPwd') setcurPwd(val);
     else if (name === 'confirmPwd') setConfirmPwd(val);
   }, []);
+  const validatePwd = useCallback(() => {
+    if (curPwd !== confirmPwd) {
+      message.error('新密码不一致!');
+      return;
+    }
+  }, [curPwd, confirmPwd]);
   return (
     <div className={styles.wrapper}>
       <div className={styles.item}>
@@ -50,7 +56,14 @@ export default function ChangePwd() {
         />
       </div>
       <div className={styles.item}>
-        <Button type="primary" block danger>
+        <Button
+          type="primary"
+          block
+          danger
+          onClick={() => {
+            validatePwd();
+          }}
+        >
           修改
         </Button>
       </div>
