@@ -1,24 +1,25 @@
 import React, { useState, useCallback } from 'react';
-import PersonShow from '../Home/components/PersonShow';
+import { Button } from 'antd';
 import Header from '@/components/Header';
-import styles from './index.less';
 import {
   SmileTwoTone,
   RightOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+import logout from '@/util/logout';
+
 import Affair from './components/Affair';
 import ChangePwd from './components/ChangePwd';
 import Toggle from './components/Toggle';
-import { jump } from '@/util/jump';
-import { Button } from 'antd';
+import PersonShow from '../Home/components/PersonShow';
+
+import styles from './index.less';
 
 export default function Home() {
   //代办事务
   const [affairShow, setAffairShow] = useState(false);
   //修改密码
   const [changePwdShow, setChangePwdShow] = useState(false);
-  const [fresh, setFresh] = useState(1);
   const close = useCallback((name: string) => {
     if (name === 'affair') {
       setAffairShow(false);
@@ -28,7 +29,7 @@ export default function Home() {
   }, []);
   //注销
   const logOut = useCallback(() => {
-    jump('/');
+    logout();
   }, []);
   return (
     <div className={styles.wrapper}>

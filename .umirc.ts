@@ -27,4 +27,12 @@ export default defineConfig({
       pathRewrite: { '^/api': '' },
     },
   },
+  chainWebpack(memo, {}) {
+    // 设置 alias
+    memo.module
+      .rule('wyh-custom')
+      .test(/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/)
+      .use('file')
+      .loader('file-loader');
+  },
 });

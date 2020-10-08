@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import PullDown from '@/components/PullDown';
 
 export default function News() {
-  const [fresh, setFresh] = useState(1);
-  console.log(fresh);
+  const [fresh, setFresh] = useState(Math.random());
   return (
     <>
       <PullDown
@@ -11,7 +10,7 @@ export default function News() {
           setFresh(Math.random());
         }}
       >
-        {fresh > 0.5 ? <h1>大于0.5</h1> : <span>小于0.5</span>}
+        <p>{fresh}</p>
       </PullDown>
     </>
   );

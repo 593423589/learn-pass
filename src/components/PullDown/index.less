@@ -2,27 +2,28 @@
 .pullDown {
   position: relative;
   width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0);
 }
 
-.pull {
+.wrapper {
   position: absolute;
   left: 0px;
   width: 100vw;
-  height: 100vh;
   background-color: #fff;
   transition: top 0.1s;
 }
 
 .loading {
   position: absolute;
+  width: 100%;
   left: 50%;
-  top: 18px;
+  top: 0;
   color: #1b91ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transform: translateX(-50%);
-}
 
-.spin {
-  padding-left: 10px;
+  .spinIcon {
+    padding: 0 10px;
+  }
 }
