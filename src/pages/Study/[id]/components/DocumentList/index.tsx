@@ -1,20 +1,18 @@
-import React from 'react'
-import OneDocument from '../OneDocument'
-import { singleDocument } from '@/type/singleDocument'
+import React from 'react';
+import Document from '../Document';
+import { singleDocument } from '@/type/singleDocument';
 
 interface Iprops {
-    documentList: singleDocument[]
+  documentList: singleDocument[];
 }
 
 export default function DocumentList(props: Iprops) {
-    const list = props.documentList.map((ele, index) => {
-        return ( <div key={index}>
-            <OneDocument name={ele.name} src={ele.src}/>
-        </div> )
-    })
+  const list = props.documentList.map((ele, index) => {
     return (
-        <>
-            {list}
-        </>
-    )
+      <div key={index}>
+        <Document name={ele.name} src={ele.src} />
+      </div>
+    );
+  });
+  return <>{list}</>;
 }

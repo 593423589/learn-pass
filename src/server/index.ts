@@ -1,23 +1,20 @@
-import { request } from 'umi';
-import { LoginType, updatePwdType } from '@/type';
-import makeQuery from '@/util/makeQuery';
+import request from 'umi-request';
 
-const prefix = '/api/user';
+import { LoginType, updatePwdType } from '@/type';
+
+export * from './course';
+export * from './video';
+
+export const PREFIX = '/api/user';
 
 export const login = (data: LoginType) =>
-  request(`${prefix}/login`, {
+  request(`${PREFIX}/login`, {
     method: 'POST',
     data,
   });
 
 export const updatePwd = (data: updatePwdType) =>
-  request(`${prefix}/updatePwd`, {
+  request(`${PREFIX}/updatePwd`, {
     method: 'PUT',
     data,
   });
-
-export const getCourse = (data: unknown) => request(`${prefix}/getCourse`);
-export const getVideos = (data: any) =>
-  request(`${prefix}/getVideos${makeQuery(data)}`);
-
-export const getCourseList = () => request(`${prefix}/getCourseList`);

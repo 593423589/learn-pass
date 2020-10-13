@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { history } from 'umi';
 import { Skeleton, Button, Modal, Input, message } from 'antd';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 import { RightOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { getCourseList } from '@/server';
+import { getCourseList, joinCourse } from '@/server';
 
 import Header from '@/components/Header';
 import PullDown from '@/components/PullDown';
@@ -16,8 +17,9 @@ import styles from './index.less';
 interface Course {
   name: string;
   teacher: string;
-  avatar: string;
-  id: string;
+  coverUrl: string;
+  id: number;
+  token: string;
 }
 
 export default () => {
@@ -25,6 +27,7 @@ export default () => {
   const [courseList, setCourseList] = useState<Course[]>();
   const [loading, setLoading] = useState<boolean>(true);
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
+  const [courseToken, setCourseToken] = useState<string>('');
 
   const fetchCourseList = () => {
     setLoading(true);
@@ -37,6 +40,23 @@ export default () => {
       })
       .catch(() => {
         setLoading(false);
+      });
+  };
+  const handleJoinCourse = () => {
+    setConfirmLoading(true);
+    const reset = () => {
+      setConfirmLoading(false);
+      setCourseModalShow(false);
+    };
+    joinCourse({ token: courseToken })
+      .then(() => {
+        reset();
+        setCourseToken('');
+        message.success('加入课程成功');
+        fetchCourseList();
+      })
+      .catch(() => {
+        reset();
       });
   };
 
@@ -52,7 +72,7 @@ export default () => {
           // rightPart={<span>管理课程</span>}
         />
         <PullDown
-          footerHeight={60}
+          abandonHeight={220}
           onRefresh={() => {
             fetchCourseList();
           }}
@@ -66,38 +86,52 @@ export default () => {
               loading={loading}
               className={styles.skeleton}
             >
-              {courseList?.map(({ name, teacher, avatar, id }: Course) => (
-                <div
-                  key={id}
-                  className={styles.courseItem}
-                  onClick={() => {
-                    history.push(
-                      `${history.location.pathname}/${id}${makeQuery({
-                        course: name,
-                      })}`,
-                    );
-                  }}
-                >
-                  <img src={avatar} className={styles.avatar} />
-                  <div className={styles.content}>
-                    <p className={styles.name}>{name}</p>
-                    <p className={styles.teacher}>{teacher}</p>
+              {courseList?.map(
+                ({ name, teacher, coverUrl, id, token }: Course) => (
+                  <div
+                    key={id}
+                    className={styles.courseItem}
+                    onClick={() => {
+                      history.push(
+                        `${history.location.pathname}/${id}${makeQuery({
+                          course: name,
+                        })}`,
+                      );
+                    }}
+                  >
+                    <img src={coverUrl} className={styles.cover} />
+                    <div className={styles.content}>
+                      <p className={styles.name}>{name}</p>
+                      <p className={styles.description}>
+                        <span>{teacher}</span>
+
+                        <CopyToClipboard
+                          text={token}
+                          onCopy={() => {
+                            message.success('复制成功');
+                          }}
+                        >
+                          <span onClick={e => e.stopPropagation()}>
+                            口令: <span className={styles.token}>{token}</span>
+                          </span>
+                        </CopyToClipboard>
+                      </p>
+                    </div>
+                    <RightOutlined className={styles.enter} />
                   </div>
-                  <RightOutlined className={styles.enter} />
-                </div>
-              ))}
+                ),
+              )}
             </Skeleton>
-            <div
-              className={styles.addCourse}
-              onClick={() => {
-                setCourseModalShow(true);
-              }}
-            >
-              <div className={styles.addCourseBox}>
-                <Button type="primary" icon={<PlusOutlined />}>
-                  加入课程
-                </Button>
-              </div>
+            <div className={styles.addCourse}>
+              <Button
+                onClick={() => {
+                  setCourseModalShow(true);
+                }}
+                type="primary"
+                icon={<PlusOutlined />}
+              >
+                加入课程
+              </Button>
             </div>
           </>
         </PullDown>
@@ -108,15 +142,8 @@ export default () => {
         confirmLoading={confirmLoading}
         closable
         centered
-        onOk={() => {
-          setConfirmLoading(true);
-          setTimeout(() => {
-            setConfirmLoading(false);
-            setCourseModalShow(false);
-            message.success('加入课程成功');
-            fetchCourseList();
-          }, 1000);
-        }}
+        destroyOnClose
+        onOk={handleJoinCourse}
         onCancel={() => {
           setCourseModalShow(false);
         }}
@@ -124,7 +151,13 @@ export default () => {
         cancelText="取消"
         width={1000}
       >
-        <Input />
+        <Input
+          autoFocus
+          value={courseToken}
+          onChange={e => {
+            setCourseToken(e.target.value);
+          }}
+        />
       </Modal>
     </>
   );

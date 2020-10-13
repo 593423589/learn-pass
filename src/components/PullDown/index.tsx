@@ -7,19 +7,21 @@ import styles from './index.less';
 interface PullDownProps {
   children: ReactElement;
   LoadingHeight?: number;
-  footerHeight?: number;
+  abandonHeight?: number;
+  slideDistance?: number;
   onRefresh: () => void;
 }
-
-let startDistance = 0;
-let curDistance = 0;
 
 const PullDown: FC<PullDownProps> = ({
   children,
   LoadingHeight = 150,
-  footerHeight = 0,
+  abandonHeight = 0,
+  slideDistance = 200,
   onRefresh,
 }) => {
+  let startDistance = 0;
+  let curDistance = 0;
+  let touchStart = 0;
   const [top, setTop] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -28,12 +30,15 @@ const PullDown: FC<PullDownProps> = ({
     <div
       className={styles.pullDown}
       style={{
-        height: `calc(100vh - ${LoadingHeight}px - ${footerHeight}px)`,
+        height: `calc(100vh - ${LoadingHeight}px - ${abandonHeight}px)`,
+      }}
+      onTouchStart={e => {
+        touchStart = e.touches[0].clientY;
       }}
       onTouchMove={e => {
         if (!loading) {
           startDistance = e.touches[0].clientY;
-          setLoading(true);
+          if (startDistance - touchStart > slideDistance) setLoading(true);
         }
         curDistance = e.touches[0].clientY;
         if (getIsOpening()) setTop(LoadingHeight);
@@ -46,7 +51,8 @@ const PullDown: FC<PullDownProps> = ({
             onRefresh?.();
           });
         }
-        startDistance = curDistance = 0;
+        startDistance = 0;
+        curDistance = 0;
       }}
     >
       {loading && (

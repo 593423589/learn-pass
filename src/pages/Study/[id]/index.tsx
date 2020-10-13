@@ -5,9 +5,7 @@ import { Tabs } from 'antd';
 
 import Header from '@/components/Header';
 
-import VideosList from './components/VideosList';
-
-import DocumentList from './components/DocumentList'
+import DocumentList from './components/DocumentList';
 
 import styles from './index.less';
 
@@ -37,15 +35,23 @@ export default () => {
 
   const renderContent = (value: TabKeys) => {
     if (value === TabKeys.VIDEO) return <VideosList />;
-    if (value === TabKeys.DOCUMENT) return <DocumentList documentList={[
-      {name: '数据结构第一章', src: 'https://www.baidu.com'},
-      {name: '数据结构第一章', src: 'https://www.baidu.com'},
-      {name: '数据结构第一章', src: 'https://www.baidu.com'},
-      {name: '数据结构第一章', src: 'https://www.baidu.com'},
-      {name: '数据结构第一章', src: 'https://www.baidu.com'},
-    ]}/>;
+    if (value === TabKeys.DOCUMENT)
+      return (
+        <DocumentList
+          documentList={[
+            { name: '数据结构第一章', src: 'https://www.baidu.com' },
+            { name: '数据结构第一章', src: 'https://www.baidu.com' },
+            { name: '数据结构第一章', src: 'https://www.baidu.com' },
+            { name: '数据结构第一章', src: 'https://www.baidu.com' },
+            { name: '数据结构第一章', src: 'https://www.baidu.com' },
+          ]}
+        />
+      );
     return null;
   };
+
+  // @ts-ignore
+  //umi useLocation type bug
   const courseName = useLocation().query.course;
 
   return (
