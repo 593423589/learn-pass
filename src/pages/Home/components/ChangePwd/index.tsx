@@ -1,72 +1,80 @@
-import React, { useState, useCallback } from 'react';
+import React, { FC } from 'react';
+import { updatePwd } from '@/server/index';
+import { Form, Input, Button, message } from 'antd';
+import { LockOutlined } from '@ant-design/icons';
+import { changePwdType } from '@/type/changePwd';
 import styles from './index.less';
-import { Input, Button, message } from 'antd';
-interface event {
-  target: {
-    value: string;
-    name: string;
-  };
-}
 
-export default function ChangePwd() {
-  const [originPwd, setoriginPwd] = useState('');
-  const [curPwd, setcurPwd] = useState('');
-  const [confirmPwd, setConfirmPwd] = useState('');
-  const changePwd = useCallback((e: event) => {
-    const target = e.target;
-    const name = target.name;
-    const val = target.value;
-    if (name === 'originPwd') setoriginPwd(val);
-    else if (name === 'curPwd') setcurPwd(val);
-    else if (name === 'confirmPwd') setConfirmPwd(val);
-  }, []);
-  const validatePwd = useCallback(() => {
-    if (curPwd !== confirmPwd) {
-      message.error('新密码不一致!');
+const ChangePwd: FC = () => {
+  const onFinish = (data: changePwdType) => {
+    if (data.newPassword !== data.confirmPassword) {
+      message.error('密码不一致!');
       return;
     }
-  }, [curPwd, confirmPwd]);
+    const { password, newPassword } = data;
+    updatePwd({
+      password,
+      newPassword,
+    }).then(() => {
+      message.success('修改成功!');
+    });
+  };
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.item}>
-        <Input.Password
-          placeholder="输入原密码"
-          size="large"
-          name="originPwd"
-          value={originPwd}
-          onChange={changePwd}
-        />
-      </div>
-      <div className={styles.item}>
-        <Input.Password
-          placeholder="输入新密码"
-          size="large"
-          name="curPwd"
-          value={curPwd}
-          onChange={changePwd}
-        />
-      </div>
-      <div className={styles.item}>
-        <Input.Password
-          placeholder="确认新密码"
-          size="large"
-          name="confirmPwd"
-          value={confirmPwd}
-          onChange={changePwd}
-        />
-      </div>
-      <div className={styles.item}>
-        <Button
-          type="primary"
-          block
-          danger
-          onClick={() => {
-            validatePwd();
-          }}
+    <div className={styles.changePwd}>
+      <Form name="changePwd" className={styles.form} onFinish={onFinish}>
+        <Form.Item
+          name="password"
+          rules={[
+            {
+              required: true,
+              message: '密码不能为空!',
+            },
+          ]}
         >
-          修改
-        </Button>
-      </div>
+          <Input
+            prefix={<LockOutlined />}
+            type="password"
+            placeholder="输入原密码!"
+          />
+        </Form.Item>
+        <Form.Item
+          name="newPassword"
+          rules={[
+            {
+              required: true,
+              message: '密码不能为空!',
+            },
+          ]}
+        >
+          <Input
+            prefix={<LockOutlined />}
+            type="password"
+            placeholder="输入新密码!"
+          />
+        </Form.Item>
+        <Form.Item
+          name="confirmPassword"
+          rules={[
+            {
+              required: true,
+              message: '密码不能为空!',
+            },
+          ]}
+        >
+          <Input
+            prefix={<LockOutlined />}
+            type="password"
+            placeholder="确认密码!"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" className={styles.submit}>
+            修改
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
-}
+};
+
+export default ChangePwd;

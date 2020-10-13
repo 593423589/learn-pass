@@ -3,6 +3,7 @@ import px2rem from 'postcss-plugin-px2rem';
 
 export default defineConfig({
   title: 'learn pass',
+  // mock:false,
   nodeModulesTransform: {
     type: 'none',
   },
@@ -22,7 +23,7 @@ export default defineConfig({
   ],
   proxy: {
     '/api': {
-      target: 'http://192.168.0.120:8080/',
+      target: 'http://192.168.43.205:8080/',
       changeOrigin: true,
       pathRewrite: { '^/api': '' },
     },

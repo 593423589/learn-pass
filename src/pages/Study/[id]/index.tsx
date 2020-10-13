@@ -7,6 +7,8 @@ import Header from '@/components/Header';
 
 import VideosList from './components/VideosList';
 
+import DocumentList from './components/DocumentList'
+
 import styles from './index.less';
 
 enum TabKeys {
@@ -35,6 +37,13 @@ export default () => {
 
   const renderContent = (value: TabKeys) => {
     if (value === TabKeys.VIDEO) return <VideosList />;
+    if (value === TabKeys.DOCUMENT) return <DocumentList documentList={[
+      {name: '数据结构第一章', src: 'https://www.baidu.com'},
+      {name: '数据结构第一章', src: 'https://www.baidu.com'},
+      {name: '数据结构第一章', src: 'https://www.baidu.com'},
+      {name: '数据结构第一章', src: 'https://www.baidu.com'},
+      {name: '数据结构第一章', src: 'https://www.baidu.com'},
+    ]}/>;
     return null;
   };
   const courseName = useLocation().query.course;

@@ -2,7 +2,7 @@ import { history } from 'umi';
 import { deleteUserInfo } from './index';
 
 export default () => {
-  //js设置cookie过期,(未做)
+  // document.cookie = 'token=; domain=???; path=/; max-age=-1';
   deleteUserInfo();
   history.push('/');
 };
