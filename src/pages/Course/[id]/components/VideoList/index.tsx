@@ -43,12 +43,12 @@ export default () => {
               history.push(`${history.location.pathname}/${period.id}`);
             }}
           >
-            <Radio className={styles.radio} checked={period.isCompleted} />
             <span className={styles.serial}>{index + 1}</span>
             <span>{period.name}</span>
             <span className={styles.status}>
               {period.isCompleted && '（已完成）'}
             </span>
+            <Radio className={styles.radio} checked={period.isCompleted} />
           </div>
         ))}
       </div>

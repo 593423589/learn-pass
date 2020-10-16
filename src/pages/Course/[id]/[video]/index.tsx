@@ -38,6 +38,15 @@ interface VideoPlayer {
       ended: boolean;
     };
   };
+  subscribeToStateChange: (
+    arg0: ({
+      isFullscreen,
+      playbackRate,
+    }: {
+      isFullscreen: boolean;
+      playbackRate: number;
+    }) => void,
+  ) => void;
 }
 
 interface Video {
@@ -46,15 +55,34 @@ interface Video {
   name: string;
 }
 
-const PROCESS_FINISH_FLAG = 0.96;
+enum Rate {
+  'Slow' = 2000,
+  'Normal' = 1000,
+  'Fast' = 500,
+}
+
+const RateToDurationMap: {
+  [key: number]: Rate;
+} = {
+  0.5: Rate['Slow'],
+  1: Rate['Normal'],
+  2: Rate['Fast'],
+};
+
+const PROCESS_FINISH_FLAG = 0.8;
+
+let playingInterval: Timeout;
+let reportProcessInterval: Timeout;
 
 import styles from './index.less';
 
 export default () => {
-  let playedTime: number = 0;
-
   const [videoPlayer, setVideoPlayer] = useState<VideoPlayer>();
   const [video, setVideo] = useState<Video>();
+  const [IsFullScreen, setIsFullScreen] = useState<boolean>(false);
+  const [isFinish, setIsFinish] = useState<boolean>(false);
+  const [intervalDuration, setIntervalDuration] = useState<Rate>(1000);
+  const [playedTime, setPlayedTime] = useState<number>(0);
 
   const isFinishedVideo = (time: number, duration: number) =>
     time / duration > PROCESS_FINISH_FLAG;
@@ -78,15 +106,22 @@ export default () => {
   useEffect(() => {
     if (!video || !videoPlayer) return;
     getVideoProcess({ videoId: video.id }).then(({ data }) => {
-      playedTime += data;
-      videoPlayer.seek(playedTime);
+      const newPlayedTime = playedTime + data;
+      setPlayedTime(newPlayedTime);
+      videoPlayer.seek(newPlayedTime);
     });
   }, [video, videoPlayer]);
 
   useEffect(() => {
     if (!video || !videoPlayer) return;
-    let playingInterval: Timeout;
-    let reportProcessInterval: Timeout;
+    videoPlayer.subscribeToStateChange(({ isFullscreen, playbackRate }) => {
+      setIsFullScreen(isFullscreen);
+      setIntervalDuration(RateToDurationMap[playbackRate]);
+    });
+  }, [video, videoPlayer]);
+
+  useEffect(() => {
+    if (!video || !videoPlayer || isFinish) return;
 
     const stopInterval = () => {
       playingInterval && window.clearInterval(playingInterval);
@@ -103,15 +138,16 @@ export default () => {
           isFinishedVideo(currentTime, duration)
         ) {
           stopInterval();
+          setIsFinish(true);
           handleFinishVideo();
         }
       };
 
       if (!paused || ended) {
-        playedTime++;
+        setPlayedTime(playedTime + 1);
         checkIfFinish();
       }
-    }, 1000);
+    }, intervalDuration);
 
     reportProcessInterval = setInterval(() => {
       const { player } = videoPlayer.getState();
@@ -127,7 +163,7 @@ export default () => {
     return () => {
       stopInterval();
     };
-  }, [video, videoPlayer]);
+  }, [video, videoPlayer, intervalDuration, playedTime, isFinish]);
 
   return (
     <div>
@@ -144,7 +180,11 @@ export default () => {
           >
             <BigPlayButton position="center" />
             <LoadingSpinner />
-            <ControlBar className={styles.controlBar}>
+            <ControlBar
+              className={
+                IsFullScreen ? styles.fullControlBar : styles.controlBar
+              }
+            >
               <PlaybackRateMenuButton rates={[0.5, 1, 2]} />
             </ControlBar>
             <source src={aa} />

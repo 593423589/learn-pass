@@ -20,9 +20,11 @@
     ]
   },
   "dependencies": {
+    "@types/ali-oss": "^6.0.5",
     "@types/react": "^16.9.49",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.20",
+    "ali-oss": "^6.11.2",
     "lint-staged": "^10.0.7",
     "postcss-plugin-px2rem": "^0.8.1",
     "react": "^16.12.0",

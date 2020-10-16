@@ -6,6 +6,8 @@ import {
   RightOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+
+import { getUerInfo } from '@/util';
 import logout from '@/util/logout';
 
 import Affair from './components/Affair';
@@ -31,15 +33,13 @@ export default function Home() {
   const logOut = useCallback(() => {
     logout();
   }, []);
+
+  const userInfo = getUerInfo().userInfo;
+
   return (
     <div className={styles.wrapper}>
       <Header title="我" leftPart={null} />
-      <PersonShow
-        name="李锋"
-        sex={0}
-        college="化工过程自动化学院"
-        class="计算机科学与技术1701"
-      />
+      <PersonShow {...userInfo} />
       <div>
         {/* 备忘录模块 */}
         <p

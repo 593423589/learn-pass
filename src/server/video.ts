@@ -2,7 +2,10 @@ import request from 'umi-request';
 
 import makeQuery from '@/util/makeQuery';
 
-import { PREFIX } from './index';
+export const PREFIX = '/api';
+
+export const getVideoList = (data: { courseId: number }) =>
+  request(`${PREFIX}/getVideoList${makeQuery(data)}`);
 
 export const getVideo = (data: { videoId: number }) =>
   request(`${PREFIX}/getVideo${makeQuery(data)}`);

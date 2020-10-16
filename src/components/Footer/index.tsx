@@ -6,18 +6,18 @@ import styles from './index.less';
 
 const Footer: FC = () => (
   <div className={styles.footer}>
-    <Link to="/study">Study</Link>
-    <Link to="/news">
+    <Link to="/Course">课程</Link>
+    <Link to="/News">
       <Badge
         count={5}
         style={{
           borderRadius: '50%',
         }}
       >
-        News
+        消息
       </Badge>
     </Link>
-    <Link to="/home">Home</Link>
+    <Link to="/Home">我</Link>
   </div>
 );
 

@@ -14,12 +14,10 @@ export default defineConfig({
     px2rem({
       rootValue: 6, //开启hd后需要换算：rootValue=designWidth*100/750
       propBlackList: [
-        'border',
         'border-top',
         'border-left',
         'border-right',
         'border-bottom',
-        'border-radius',
       ], //这些属性不需要转换
     }),
   ],
