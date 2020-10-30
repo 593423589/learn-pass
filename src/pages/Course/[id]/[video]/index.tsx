@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Skeleton, message } from 'antd';
+import { useLocation } from 'umi';
+import { Skeleton, Button, message } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 
 import {
   Player,
@@ -16,17 +18,17 @@ import {
   getVideoProcess,
   reportVideoProcess,
   finishVideo,
-  getDocuments,
-  getQuestions,
 } from '@/server';
 
-import Header from '@/components/Header';
+import { getUrl, getVideoPreviewUrl, download } from '@/util/oss';
+import { getUerInfo } from '@/util';
 
-// import aa from '@/assets/1.mp4';
-//@ts-ignore
-import aa from '@/assets/0.mp4';
-//@ts-ignore
-import IMG from '@/assets/0.jpg';
+import { Video } from '@/type';
+
+import Header from '@/components/Header';
+import Radio from '../components/Radio';
+
+import styles from './index.less';
 
 interface VideoPlayer {
   seek: (arg0: number) => void;
@@ -49,12 +51,6 @@ interface VideoPlayer {
   ) => void;
 }
 
-interface Video {
-  id: number;
-  url: string;
-  name: string;
-}
-
 enum Rate {
   'Slow' = 2000,
   'Normal' = 1000,
@@ -74,7 +70,7 @@ const PROCESS_FINISH_FLAG = 0.8;
 let playingInterval: Timeout;
 let reportProcessInterval: Timeout;
 
-import styles from './index.less';
+let playedTime = 0;
 
 export default () => {
   const [videoPlayer, setVideoPlayer] = useState<VideoPlayer>();
@@ -82,36 +78,46 @@ export default () => {
   const [IsFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isFinish, setIsFinish] = useState<boolean>(false);
   const [intervalDuration, setIntervalDuration] = useState<Rate>(1000);
-  const [playedTime, setPlayedTime] = useState<number>(0);
 
-  const isFinishedVideo = (time: number, duration: number) =>
-    time / duration > PROCESS_FINISH_FLAG;
+  const isStudent = getUerInfo().isStudent;
+  const location = useLocation();
+
+  const isFinishedVideo = (time: number, duration: number) => {
+    if (!time || !duration) return false;
+    return time / duration > PROCESS_FINISH_FLAG;
+  };
 
   const handleFinishVideo = useCallback(() => {
     if (!video) return;
     finishVideo({ videoId: video.id }).then(() => {
-      message.success('视频已完成');
+      setIsFinish(true);
     });
   }, [video]);
-
+  //初始化 获取视频
   useEffect(() => {
-    const videoId = location.pathname.split('/').pop();
+    const videoId = location.pathname.split('/').splice(-1);
+
     getVideo({ videoId: Number(videoId) }).then(({ data }: { data: Video }) => {
+      playedTime = data.process;
       setVideo(data);
+      setIsFinish(data.completed);
     });
-    getDocuments({ videoId: Number(videoId) });
-    getQuestions({ videoId: Number(videoId) });
+    return () => {
+      playedTime = 0;
+    };
   }, []);
 
+  //跳转视频到已播放完时间
   useEffect(() => {
-    if (!video || !videoPlayer) return;
-    getVideoProcess({ videoId: video.id }).then(({ data }) => {
-      const newPlayedTime = playedTime + data;
-      setPlayedTime(newPlayedTime);
-      videoPlayer.seek(newPlayedTime);
-    });
+    if (!videoPlayer || !video) return;
+    try {
+      videoPlayer.seek(playedTime);
+    } catch (e) {
+      console.error('视频跳转错误' + e);
+    }
   }, [video, videoPlayer]);
 
+  //处理全屏的样式以及根据视频速度改变计时器的间隔
   useEffect(() => {
     if (!video || !videoPlayer) return;
     videoPlayer.subscribeToStateChange(({ isFullscreen, playbackRate }) => {
@@ -120,12 +126,13 @@ export default () => {
     });
   }, [video, videoPlayer]);
 
+  //打开进度计时器和上报进度计时器
   useEffect(() => {
-    if (!video || !videoPlayer || isFinish) return;
+    if (!video || !videoPlayer || isFinish || !isStudent) return;
 
     const stopInterval = () => {
-      playingInterval && window.clearInterval(playingInterval);
-      reportProcessInterval && window.clearInterval(reportProcessInterval);
+      playingInterval && clearInterval(playingInterval);
+      reportProcessInterval && clearInterval(reportProcessInterval);
     };
 
     playingInterval = setInterval(() => {
@@ -144,53 +151,84 @@ export default () => {
       };
 
       if (!paused || ended) {
-        setPlayedTime(playedTime + 1);
+        playedTime++;
         checkIfFinish();
       }
     }, intervalDuration);
 
     reportProcessInterval = setInterval(() => {
       const { player } = videoPlayer.getState();
-      const { paused } = player;
-      if (!paused) {
+      if (!player.paused) {
         reportVideoProcess({
           videoId: video.id,
           process: playedTime,
         });
       }
-    }, 5000);
+    }, 10000);
 
     return () => {
       stopInterval();
     };
-  }, [video, videoPlayer, intervalDuration, playedTime, isFinish]);
+  }, [video, videoPlayer, isFinish, intervalDuration]);
 
   return (
-    <div>
-      <Header title={video?.name ?? ''} />
+    <>
+      <Header title="视频" />
+      <div className={styles.video}>
+        <h2 className={styles.name}>
+          {isStudent && <Radio completed={isFinish} />}
+          <span>{video?.name}</span>
+        </h2>
+        <Skeleton loading={!video}>
+          {video && (
+            <div className={styles.videoPlayerWrapper}>
+              <Player
+                poster={getVideoPreviewUrl(video.path)}
+                aspectRatio="16:9"
+                ref={(player: VideoPlayer) => {
+                  setVideoPlayer(player);
+                }}
+              >
+                <BigPlayButton position="center" />
+                <LoadingSpinner />
+                <ControlBar
+                  className={
+                    IsFullScreen ? styles.fullControlBar : styles.controlBar
+                  }
+                >
+                  <PlaybackRateMenuButton rates={[0.5, 1, 2]} />
+                </ControlBar>
+                <source src={getUrl(video.path)} />
+              </Player>
+            </div>
+          )}
+        </Skeleton>
 
-      <Skeleton loading={!video}>
-        {video && (
-          <Player
-            poster={IMG}
-            aspectRatio="16:9"
-            ref={(player: VideoPlayer) => {
-              setVideoPlayer(player);
+        <p className={styles.taskStatus}>
+          {isStudent && (
+            <>
+              <span className={styles.text}>任务情况:</span>
+              {video && (
+                <span className={styles.status}>
+                  {isFinish ? '已' : '未'}完成
+                </span>
+              )}
+            </>
+          )}
+        </p>
+        <div className={styles.download}>
+          <Button
+            icon={<DownloadOutlined />}
+            shape="circle"
+            type="primary"
+            size="large"
+            onClick={() => {
+              message.loading('正在下载...', 0.5);
+              video?.path && download(video.path);
             }}
-          >
-            <BigPlayButton position="center" />
-            <LoadingSpinner />
-            <ControlBar
-              className={
-                IsFullScreen ? styles.fullControlBar : styles.controlBar
-              }
-            >
-              <PlaybackRateMenuButton rates={[0.5, 1, 2]} />
-            </ControlBar>
-            <source src={aa} />
-          </Player>
-        )}
-      </Skeleton>
-    </div>
+          />
+        </div>
+      </div>
+    </>
   );
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from '../UnFinish/index.less';
-import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 interface Iprops {
   Finishs: string[];

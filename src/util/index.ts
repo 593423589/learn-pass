@@ -1,27 +1,20 @@
+import md5 from 'js-md5';
+
+import { UserInfo, Role } from '@/type';
 import { setItem, getItem, removeItem } from './storage';
-import { UserInfo, UserRoleMap, Role } from '@/type';
 
 const USER_INFO = 'user_info';
 
 export const getUerInfo = () => {
-  const userInfo: UserInfo = JSON.parse(getItem(USER_INFO));
+  const userInfo: UserInfo = getItem(USER_INFO);
 
   return {
     userInfo,
     isLogin: Boolean(userInfo),
-    type: UserRoleMap[userInfo.rid],
-    isStudent: UserRoleMap[userInfo.rid] === Role[1],
-    isTeacher: UserRoleMap[userInfo.rid] === Role[0],
+    type: Role[userInfo?.rid],
+    isStudent: userInfo?.rid === Role.Student,
+    isTeacher: userInfo?.rid === Role.Teacher,
   };
-};
-
-const obj = {
-  username: '葛可',
-  realname: '葛士可',
-  sex: false,
-  college: '沈阳大学',
-  subject: '吃屎专业',
-  rid: 1,
 };
 
 export const setUerInfo: (userInfo: UserInfo) => Promise<string> = userInfo =>
@@ -35,6 +28,21 @@ export const setUerInfo: (userInfo: UserInfo) => Promise<string> = userInfo =>
     res();
   });
 
-export const deleteUserInfo = () => {
-  removeItem(USER_INFO);
+const deleteUserInfo = () => removeItem(USER_INFO);
+
+export const delay = async (duration: number) => {
+  return new Promise(resolve => {
+    let timer: Timeout;
+    timer = setTimeout(() => {
+      resolve();
+      clearTimeout(timer);
+    }, duration);
+  });
 };
+
+export const logout = () => {
+  document.cookie = 'token=; max-age=-1';
+  deleteUserInfo();
+};
+
+export const getMd5 = (data: string) => md5(data);

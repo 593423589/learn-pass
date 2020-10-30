@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useState } from 'react';
 import { Spin } from 'antd';
-import { delay } from '@/util/delay';
+import { delay } from '@/util';
 
 import styles from './index.less';
 
@@ -30,7 +30,7 @@ const PullDown: FC<PullDownProps> = ({
     <div
       className={styles.pullDown}
       style={{
-        height: `calc(100vh - ${LoadingHeight}px - ${abandonHeight}px)`,
+        height: `calc(100vh - ${LoadingHeight}px )`,
       }}
       onTouchStart={e => {
         touchStart = e.touches[0].clientY;

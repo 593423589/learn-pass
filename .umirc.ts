@@ -3,16 +3,19 @@ import px2rem from 'postcss-plugin-px2rem';
 
 export default defineConfig({
   title: 'learn pass',
-  // mock:false,
+  // mock: false,
   targets: {
     ie: 11,
   },
+  publicPath: './',
+  history: { type: 'hash' },
+  outputPath: '/dist/hello/www',
   nodeModulesTransform: {
     type: 'none',
   },
   extraPostCSSPlugins: [
     px2rem({
-      rootValue: 6, //开启hd后需要换算：rootValue=designWidth*100/750
+      rootValue: 16,
       propBlackList: [
         'border-top',
         'border-left',
@@ -28,13 +31,13 @@ export default defineConfig({
       pathRewrite: { '^/api': '' },
     },
   },
-  chainWebpack(memo, {}) {
-    //FIX ME!!!
-    // 设置 alias
-    memo.module
-      .rule('wyh-custom')
-      .test(/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/)
-      .use('file')
-      .loader('file-loader');
-  },
+  // chainWebpack(memo, {}) {
+  //   //FIX ME!!!
+  //   // 设置 alias
+  //   memo.module
+  //     .rule('wyh-custom')
+  //     .test(/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/)
+  //     .use('file')
+  //     .loader('file-loader');
+  // },
 });

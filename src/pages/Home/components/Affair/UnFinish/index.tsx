@@ -10,6 +10,8 @@ export default function UnFinish(props: Iprops) {
   const arr = props.affairs.map((ele, index) => {
     return (
       <div className={styles.item} key={index}>
+        <span>{index + 1}.</span>
+
         <span className={styles.affair}>{ele}</span>
         <span
           className={styles.finish}

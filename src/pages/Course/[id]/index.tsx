@@ -1,7 +1,8 @@
 import React from 'react';
 import { useLocation, history } from 'umi';
 
-import { Tabs, Button, message } from 'antd';
+import { Tabs, Modal, message } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 
 import Header from '@/components/Header';
 import { deleteCourse } from '@/server';
@@ -34,39 +35,45 @@ const TAB_LIST = [
 
 export default () => {
   const { TabPane } = Tabs;
-
-  const renderContent = (value: TabKeys) => {
-    if (value === TabKeys.VIDEO) return <VideoList />;
-    if (value === TabKeys.DOCUMENT) return <DocumentList />;
-    return null;
-  };
-
   // @ts-ignore
   //umi useLocation type bug
   const courseName = useLocation().query.courseName;
   // @ts-ignore
   const courseId = useLocation().query.courseId;
 
+  const renderContent = (value: TabKeys) => {
+    if (value === TabKeys.VIDEO) return <VideoList courseId={courseId} />;
+    if (value === TabKeys.DOCUMENT) return <DocumentList courseId={courseId} />;
+    return null;
+  };
+
   return (
     <div>
       <Header
         title={courseName}
         rightPart={
-          <Button
-            danger
-            type="primary"
-            size="small"
+          <DeleteOutlined
+            style={{
+              color: '#ff4d4f',
+            }}
             onClick={() => {
-              deleteCourse({
-                courseId,
-              }).then(() => {
-                message.success('删除成功');
-                history.go(-1);
+              Modal.confirm({
+                title: '确定要删除课程吗?',
+                width: 800,
+                okText: '确定',
+                cancelText: '取消',
+
+                onOk() {
+                  return deleteCourse({
+                    courseId,
+                  }).then(() => {
+                    message.success('删除成功');
+                    history.go(-1);
+                  });
+                },
               });
             }}
-          >
-            删除
-          </Button>
+          />
         }
       />
       <Tabs className={styles.tab}>

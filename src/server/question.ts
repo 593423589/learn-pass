@@ -2,7 +2,7 @@ import request from 'umi-request';
 import makeQuery from '@/util/makeQuery';
 import cleanObject from '@/util/cleanObject';
 
-export const PREFIX = '/api';
+import { questionPrefix } from '@/server/api';
 
 export const getQuestions = (data: { courseId?: number; videoId?: number }) =>
-  request(`${PREFIX}/getQuestions${makeQuery(cleanObject(data))}`);
+  request(`${questionPrefix}/getQuestions${makeQuery(cleanObject(data))}`);

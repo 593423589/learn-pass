@@ -1,35 +1,28 @@
 import React from 'react';
 import { Drawer } from 'antd';
-// import styles from './index.less'
 import { LeftOutlined } from '@ant-design/icons';
+
+import styles from './index.less';
 
 interface Iprops {
   title: string;
   visible: boolean;
-  close: (name: string) => void;
+  close?: () => void;
   children: JSX.Element;
-  closeName: string;
 }
 
 export default function Toggle(props: Iprops) {
   return (
-    <div>
+    <div className={styles.toggle}>
       <Drawer
+        className={styles.drawer}
         title={props.title}
         placement="right"
         closable
-        closeIcon={
-          <LeftOutlined
-            style={{
-              position: 'fixed',
-              left: 23,
-              top: 55,
-              fontSize: '1.2em',
-            }}
-          />
-        }
+        destroyOnClose
+        closeIcon={<LeftOutlined className={styles.icon} />}
         onClose={() => {
-          props.close(props.closeName);
+          props.close?.();
         }}
         visible={props.visible}
         width="100%"
