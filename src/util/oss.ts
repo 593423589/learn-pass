@@ -4,8 +4,8 @@ import downloadFile from './download';
 
 const OSS_OPTION = {
   region: 'oss-cn-beijing',
-  accessKeyId: 'LTAI4GHkJcbbT5raepiWgS7D',
-  accessKeySecret: 'WSA2tLdAYAaBKaYaRdr7gIQQb9xNkA',
+  accessKeyId: '',
+  accessKeySecret: '',
   bucket: 'learn-pass',
 };
 
