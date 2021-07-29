@@ -1,15 +1,4 @@
 # umi project
 
-## Getting Started
+## oss + react + cordova+ video-react
 
-Install dependencies,
-
-```bash
-$ yarn
-```
-
-Start the dev server,
-
-```bash
-$ yarn start
-```
